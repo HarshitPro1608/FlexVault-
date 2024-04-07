@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="shortcut icon" type="image/png" href="/icon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin />
+  <script defer src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin></script>
+  <!-- SET THE API KEY TOKEN AND PLACE IT HERE -->
+  <script
+    src="https://apis.mappls.com/advancedmaps/api/<Token>/map_sdk?layer=vector&v=3.0&callback=initMap1"></script>
+  <script
+    src="https://apis.mappls.com/advancedmaps/api/<Token>/map_sdk_plugins?v=3.0"></script>
+  <script type="module" src="script.js"></script>
+  <title>Flex Vault || Track Your Workouts!</title>
+</head>
+<body>
+  <div id="sidebar">
+    <button id="closeBtn">&times;</button>
+    <div class="sidebar">
+      <img src="f1.png" alt="Logo" class="logo" />
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+      <div class="date-filter-container">
+        <div class="child-class">
+          <div class="child-ka-child">
+            <label class="label1" for="start-date" class="date-filter">Start</label>
+            <input class="starting-date" type="date" id="start-date" class="date-filter">
+          </div>
+         <div class="child-ka-child">
+          <label class="label1" for="end-date" class="date-filter">End</label>
+          <input class="starting-date" type="date" id="end-date" class="date-filter">
+         </div>
+        
+          <button class = "apply" onclick="applyDateFilter()">Apply</button>
+        </div>
+      </div>
+      <ul class="workouts">
+        <form class="form hidden">
+          <div class="form__row">
+            <label class="form__label">Type</label>
+            <select class="form__input form__input--type" id="type">
+              <option value="running">Running</option>
+              <option value="cycling">Cycling</option>
+            </select>
+          </div>
+          <div class="form__row">
+            <label class="form__label">Distance</label>
+            <input class="form__input form__input--distance" type="number" id="porn" placeholder="km" />
+          </div>
+          <div class="form__row">
+            <label class="form__label" id="duration">Duration</label>
+            <input class="form__input form__input--duration" placeholder="min" />
+          </div>
+  
+          <div class="form__row">
+            <label class="form__label">Cadence</label>
+            <input class="form__input form__input--cadence" placeholder="step/min" />
+          </div>
+          <div class="form__row form__row--hidden">
+            <label class="form__label">Elev Gain</label>
+            <input class="form__input form__input--elevation" placeholder="meters" />
+          </div>
+        </form>
+        <div class="pro__tip form__row hidden">Pro tip: You can press enter to add workout!</div>
+        <button class="form__btn form__row hidden">Add workout!</button>
+      </ul>
+    </div>
+
+  </div>
+  <div class="hamburger-parent">
+    <div id="hamburger">&#9776;</div>
+  </div>
+  <div class="hamburger-parent-prev">
+    <a id="hamburger-prev" href="/tournament.html"><img class="trophy" src="Trophy.jpg" alt=""></a>
+
+  </div>
+  
+  <div class="search-parent">
+    <div class="search-box">
+      <input type="text" id="auto" name="auto" class="search-outer form-control as-input"
+        placeholder="Search places or eLoc's..." required spellcheck="false" />
+      <i class="fas fa-search search-icon"></i>
+    </div>
+  </div>
+ 
+  <div id="map"></div>
+  <!-- Include the MapPLS SDK script tag -->
+
+  <script>
+
+    document.getElementById('hamburger').addEventListener('click', revealSidebar);
+
+    document.getElementById('closeBtn').addEventListener('click', function () {
+      document.getElementById('sidebar').style.left = '-100%';
+      document.getElementById('hamburger').style.display = 'block'; // Show hamburger icon
+      document.getElementById('closeBtn').style.display = 'none'; // Hide close button
+    });
+
+
+    function revealSidebar() {
+      document.getElementById('sidebar').style.left = '0';
+      document.getElementById('hamburger').style.display = 'none'; // Hide hamburger icon
+      document.getElementById('closeBtn').style.display = 'block'; // Show close button
+    }
+
+
+    var map, marker;
+  </script>
+  <div>
+    
+
+    <script type="module">
+      'use strict';
+
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+      import { getFirestore, collection, getDocs, setDoc, addDoc, doc, getDoc, deleteDoc, query, where, updateDoc } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js';
+      import { getAuth } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js';
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCntJyp2Q8PfKklUOVQWDZQ6UmbV3UNDE8",
+        authDomain: "flexvault-f438a.firebaseapp.com",
+        projectId: "flexvault-f438a",
+        storageBucket: "flexvault-f438a.appspot.com",
+        messagingSenderId: "38963046556",
+        appId: "1:38963046556:web:254cd9c8feeb0b11a9a559"
+      };
+
+      const fapp = initializeApp(firebaseConfig);
+      const db = getFirestore(fapp);
+
+      class Workout {
+        date = new Date();
+        id = (Date.now() + '').slice(-10);
+        clicks = 0;
+
+        constructor(coords, distance, duration) {
+          // this.date = ...
+          // this.id = ...
+          this.coords = coords; // [lat, lng]
+          this.distance = distance; // in km
+          this.duration = duration; // in min
+        }
+
+        _setDescription() {
+          // prettier-ignore
+          const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+          this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]
+            } ${this.date.getDate()}`;
+        }
+
+        click() {
+          this.clicks++;
+        }
+      }
+
+      class Running extends Workout {
+        type = 'running';
+
+        constructor(coords, distance, duration, cadence) {
+          super(coords, distance, duration);
+          this.cadence = cadence;
+          this.calcPace();
+          this._setDescription();
+        }
+
+        calcPace() {
+          // min/km
+          this.pace = this.duration / this.distance;
+          return this.pace;
+        }
+      }
+
+      class Cycling extends Workout {
+        type = 'cycling';
+
+        constructor(coords, distance, duration, elevationGain) {
+          super(coords, distance, duration);
+          this.elevationGain = elevationGain;
+          this.calcSpeed();
+          this._setDescription();
+        }
+
+        calcSpeed() {
+          // km/h
+          this.speed = this.distance / (this.duration / 60);
+          return this.speed;
+        }
+      }
+
+      ///////////////////////////////////////
+      // APPLICATION ARCHITECTURE
+      const form = document.querySelector('.form');
+      const formSubmit = document.querySelector(".form__btn")
+      const proTip = document.querySelector(".pro__tip")
+      const dateFilter = document.querySelector(".date-filter-container")
+      const containerWorkouts = document.querySelector('.workouts');
+      const inputType = document.querySelector('.form__input--type');
+      const inputDistance = document.querySelector('.form__input--distance');
+      const inputDuration = document.querySelector('.form__input--duration');
+      const inputCadence = document.querySelector('.form__input--cadence');
+      const inputElevation = document.querySelector('.form__input--elevation');
+
+      class App {
+
+        #map;
+        #mapZoomLevel = 13;
+        #mapEvent;
+        #workouts = [];
+
+        constructor() {
+          // Get user's position
+          this._getPosition();
+
+          // Get data from local storage
+          // this._getLocalStorage();
+
+          // Attach event handlers
+          form.addEventListener('submit', this._newWorkout.bind(this));
+          formSubmit.addEventListener('click', this._newWorkout.bind(this));
+          inputType.addEventListener('change', this._toggleElevationField);
+          containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+
+          getAuth(fapp).onAuthStateChanged(user => {
+            if (user) {
+              this.user = user;
+              // Fetch user-specific activities
+              this._fetchUserActivities();
+            } else {
+              // User is signed out, clear data
+              this.user = null;
+              this.#workouts = [];
+              containerWorkouts.innerHTML = ''; // Clear UI
+            }
+          });
+        }
+
+        _getPosition() {
+          if (navigator.geolocation)
+            navigator.geolocation.getCurrentPosition(
+              this._loadMap.bind(this),
+              function () {
+                alert('Could not get your position');
+              }
+            );
+        }
+
+
+        _loadMap(position) {
+          const { latitude, longitude } = position.coords;
+          const coords = [latitude, longitude];
+
+          this.#map = new mappls.Map('map', { center: [latitude, longitude] });
+
+          this.#map.addListener('load', () => { // Changed to arrow function
+            var optional_config = {
+              region: "IND",
+              height: 300,
+            };
+
+            const callback = (data) => { // Changed to arrow function
+              console.log(data);
+              if (data) {
+                var dt = data[0];
+                if (!dt) return false;
+                var eloc = dt.eLoc;
+                var place = dt.placeName + ", " + dt.placeAddress;
+
+                // Add marker to the map
+                if (marker) marker.remove();
+                mappls.pinMarker({
+                  map: this.#map,
+                  pin: eloc,
+                  popupHtml: place,
+                  popupOptions: {
+                    openPopup: true
+                  }
+                }, function (data) {
+                  marker = data;
+                  marker.fitbounds();
+                });
+              }
+            }
+
+        new mappls.search(document.getElementById("auto"), optional_config, callback);
+
+          this._getLocalStorage();
+
+
+          // Handling clicks on map
+          this.#map.on('click', this._showForm.bind(this)); 
+          this.#map.on('click', (event) => {this._showForm(event); revealSidebar();});
+
+          this.#workouts.forEach(work => {
+            this._renderWorkoutMarker(work);
+          });
+          })
+        }
+
+
+        _showForm(mapE) {
+          this.#mapEvent = mapE;
+          form.classList.remove('hidden');
+          dateFilter.classList.add('hidden')
+          formSubmit.classList.remove('hidden');
+          proTip.classList.remove('hidden');
+          inputDistance.focus();
+        }
+
+        _hideForm() {
+          // Empty inputs
+          inputDistance.value = inputDuration.value = inputCadence.value = inputElevation.value =
+            '';
+
+          form.style.display = 'none';
+          dateFilter.classList.remove('hidden')
+          form.classList.add('hidden');
+          formSubmit.classList.add('hidden');
+          proTip.classList.add('hidden');
+          setTimeout(() => (form.style.display = 'grid'), 1000);
+        }
+
+        _toggleElevationField() {
+          inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+          inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+        }
+
+        async _newWorkout(e) {
+          if (!this.user) {
+            // Handle unauthenticated user
+            return alert('Please sign in to add workouts.');
+          }
+          const validInputs = (...inputs) =>
+            inputs.every(inp => Number.isFinite(inp));
+          const allPositive = (...inputs) => inputs.every(inp => inp > 0);
+
+          e.preventDefault();
+
+          // Get data from form
+          const type = inputType.value;
+          const distance = +inputDistance.value;
+          const duration = +inputDuration.value;
+          console.log(this.#mapEvent)
+          const { lng, lat } = this.#mapEvent.lngLat;
+          let workout;
+
+          // If workout running, create running object
+          if (type === 'running') {
+            const cadence = +inputCadence.value;
+
+            // Check if data is valid
+            if (
+              // !Number.isFinite(distance) ||
+              // !Number.isFinite(duration) ||
+              // !Number.isFinite(cadence)
+              !validInputs(distance, duration, cadence) ||
+              !allPositive(distance, duration, cadence)
+            )
+              return alert('Inputs have to be positive numbers!');
+
+            workout = new Running([lat, lng], distance, duration, cadence);
+          }
+
+          // If workout cycling, create cycling object
+          if (type === 'cycling') {
+            const elevation = +inputElevation.value;
+
+            if (
+              !validInputs(distance, duration, elevation) ||
+              !allPositive(distance, duration)
+            )
+              return alert('Inputs have to be positive numbers!');
+
+            workout = new Cycling([lat, lng], distance, duration, elevation);
+          }
+
+          // Add new object to workout array
+          this.#workouts.push(workout);
+
+          // Hide form + clear input fields
+          this._hideForm();
+
+          // Set local storage to all workouts
+          this._setLocalStorage(workout);
+
+        }
+
+        async _fetchUserActivities() {
+          // Fetch user-specific activities from Firestore
+          const snapshot = await collection('userActivities').doc(this.user.uid).collection('workouts').get();
+          snapshot.forEach(doc => {
+            const workoutData = doc.data();
+
+            let workout;
+
+            if (workoutData.type === 'running') {
+              workout = new Running(
+                [workoutData.coords.lat, workoutData.coords.lng],
+                workoutData.distance,
+                workoutData.duration,
+                workoutData.cadence
+              );
+            } else if (workoutData.type === 'cycling') {
+              workout = new Cycling(
+                [workoutData.coords.lat, workoutData.coords.lng],
+                workoutData.distance,
+                workoutData.duration,
+                workoutData.elevationGain
+              );
+            }
+
+            // Render workout on list
+            this._renderWorkout(workout);
+          });
+        }
+
+        _renderWorkoutMarker(latitude, longitude) {
+          let Marker1 = new mappls.Marker({
+            map: this.#map,
+            position: {
+              "lat": latitude,
+              "lng": longitude
+            },
+            fitbounds: true,
+
+            icon_url: 'https://apis.mapmyindia.com/map_v3/2.png',
+            draggable: true
+          });
+          console.log(latitude);
+        }
+
+        deleteData(_id) {
+          return async () => {
+            console.log(_id)
+
+            // frontend removal 
+            const element = document.querySelector(`[data-id="${_id}"]`)
+            element.remove()
+
+
+            // backend removing functionality
+            const collectionRef = collection(db, 'users');
+            // Query the collection to get all documents
+
+            const q = query(collectionRef, where("id", "==", _id));
+            const querySnapshot = await getDocs(q);
+
+            // Iterate over each document in the collection
+            // console.log(querySnapshot)
+            querySnapshot.forEach((_doc) => {
+              // Access the data of each document
+              // console.log(doc.id, '=>', doc.data().email);
+              const _deleteDoc = doc(db, 'users', _doc.id)
+              console.log(_doc.id)
+              deleteDoc(_deleteDoc)
+                .then(() => {
+                  alert("Data Deleted Successfully");
+                }).catch((e) => {
+                  alert("Unsuccessful operation: " + e);
+                })
+
+            })
+
+          }
+
+        }
+
+        _renderWorkout(workout) {
+          let html = `
+                    <div id="total_workout">
+                      </div>
+                      <li  class="workout workout--${workout.type}" data-id="${workout.id}">
+                        <h2 class="workout__title">
+
+                          <span>
+                            ${workout.description}
+
+                            </span>
+
+                          <span style="inline">
+                            <button class="action-button delete-button" id="deleteButton" style="display: inline;" delete-data-id="${workout.id}"><i class="fas fa-trash-alt"></i></button>
+                            </span>
+
+
+                         </h2>
+
+                        <div class="workout__details">
+                          <span class="workout__icon">${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
+            }</span>
+                          <span class="workout__value">${workout.distance}</span>
+                          <span class="workout__unit">km</span>
+                        </div>
+                        <div class="workout__details">
+                          <span class="workout__icon">⏱</span>
+                          <span class="workout__value">${workout.duration}</span>
+                          <span class="workout__unit">min</span>
+                        </div>
+                    `;
+
+          if (workout.type === 'running')
+            html += `
+                        <div class="workout__details">
+                          <span class="workout__icon">⚡️</span>
+                          <span class="workout__value">${(workout.duration / workout.distance).toFixed(1)}</span>
+                          <span class="workout__unit">min/km</span>
+                        </div>
+                        <div class="workout__details">
+                          <span class="workout__icon">🦶🏼</span>
+                          <span class="workout__value">${workout.cadence}</span>
+                          <span class="workout__unit">spm</span>
+                        </div>
+                      </li>
+                      `;
+
+          if (workout.type === 'cycling')
+            html += `
+                        <div class="workout__details">
+                          <span class="workout__icon">⚡️</span>
+                          <span class="workout__value">${(workout.distance / (workout.duration / 60)).toFixed(1)}</span>
+                          <span class="workout__unit">km/h</span>
+                        </div>
+                        <div class="workout__details">
+                          <span class="workout__icon">⛰</span>
+                          <span class="workout__value">${workout.elevationGain}</span>
+                          <span class="workout__unit">m</span>
+                        </div>
+                      </li>
+                      `;
+
+          formSubmit.insertAdjacentHTML('afterend', html);
+          document.querySelector(`button[delete-data-id="${workout.id}"]`).addEventListener('click', this.deleteData(workout.id));
+          var latitude = workout.position.lat;
+          var longitude = workout.position.lng;
+          this._renderWorkoutMarker(latitude, longitude);
+        }
+
+        async _moveToPopup(e) {
+          if (!this.#map) return;
+          const workoutEl = e.target.closest('.workout');
+
+          console.log(workoutEl.dataset.id);
+
+          // Now you can use workId here or anywhere else in your code
+
+
+          const collectionRef = collection(db, 'users');
+          //     // let latestDocId = work.id;
+
+          // Query the collection to get all documents
+          const querySnapshot = await getDocs(collectionRef);
+
+          // Iterate over each document in the collection
+          querySnapshot.forEach((doc) => {
+            // Access the data of each document
+            // console.log(doc.id, '=>', doc.data().email);
+            if (doc.data().id == workoutEl.dataset.id) {
+
+              this.#map.panTo(doc.data().position, 15);
+              //  this._renderWorkout(doc.data());
+            }
+          });
+        }
+
+        _setLocalStorage(workout) {
+          //   var type = document.getElementById('type').value;
+          //   // var duration = document.getElementById('duration').value;
+          // var distanceInput = ${workout.distance};
+          var type = workout.type;
+          console.log(type);
+          var distance = workout.distance;
+          console.log(distance);
+          var duration = workout.duration;
+          console.log(duration);
+          const params = new URLSearchParams(window.location.search);
+          const email = params.get('email');
+          console.log("Email:", email);
+          if (type == 'running') {
+            console.log("before cadence")
+            var cadence = workout.cadence;
+            console.log(cadence);
+          }
+          else {
+            var elevationGain = workout.elevationGain;
+          }
+
+          var lat = workout.coords[0];
+          var lng = workout.coords[1];
+
+
+          var ref = collection(db, "users");
+          let latestDocId = null;
+
+          if (type === 'cycling') {
+            addDoc(
+              ref, {
+              type: workout.type,
+              distance: workout.distance,
+              duration: workout.duration,
+              email: email,
+              position: {
+                "lat": workout.coords[0],
+                "lng": workout.coords[1]
+              },
+              elevationGain: workout.elevationGain,
+              id: workout.id,
+              description: workout.description
+            }
+            )
+              .then((docRef) => {
+                getDoc(docRef)
+                  .then((docSnapshot) => {
+                    if (latestDocId = docSnapshot.id)
+                      this._renderWorkout(docSnapshot.data()); // Pass document data to render
+                  })
+                  .catch((error) => {
+                    console.error("Error getting document:", error);
+                  });
+              })
+          }
+
+          if (type === 'running') {
+            addDoc(
+              ref, {
+              type: workout.type,
+              distance: workout.distance,
+              duration: workout.duration,
+              email: email,
+              position: {
+                "lat": workout.coords[0],
+                "lng": workout.coords[1]
+              },
+              cadence: workout.cadence,
+              id: workout.id,
+              description: workout.description
+            }
+            )
+              .then((docRef) => {
+                getDoc(docRef)
+                  .then((docSnapshot) => {
+                    if (latestDocId = docSnapshot.id)
+                      this._renderWorkout(docSnapshot.data()); // Pass document data to render
+                  })
+                  .catch((error) => {
+                    console.error("Error getting document:", error);
+                  });
+              })
+          }
+        }
+
+
+        async _getLocalStorage() {
+ 
+          const params = new URLSearchParams(window.location.search);
+          const email = params.get('email');
+          const collectionRef = collection(db, 'users');
+
+          // Query the collection to get all documents
+          const querySnapshot = await getDocs(collectionRef);
+
+          // Iterate over each document in the collection
+          querySnapshot.forEach((doc) => {
+            // Access the data of each document
+            if (doc.data().email == email) {
+              console.log(doc.data());
+              this._renderWorkout(doc.data());
+            }
+          });
+
+
+        }
+      }
+
+    const app = new App();
+    </script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        setDoc,
+        addDoc,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+      import { getAuth } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+
+      // Add event listener to the logout button
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", function () {
+          // Redirect to auth.html upon clicking the logout button
+          window.location.href = "index.html";
+        });
+    </script>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+</body>
+
+</html>

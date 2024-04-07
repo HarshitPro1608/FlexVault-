@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Sign In</title>
+    <style>
+        body {
+            background-color: #2d3439;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 400px;
+            margin: 140px auto;
+            background-color: #ffffff;
+            border: 1px solid #2d3439;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2d3439;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-control {
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            height: 40px;
+        }
+        .btn {
+            height: 40px;
+            border-radius: 3px;
+        }
+        #signInBtn {
+            background-color: #2d3439;
+            color: #ffffff;
+            margin-right: 5px;
+        }
+        #registerBtn {
+            background-color: #2d3439;
+            color: #ffffff;
+        }
+        .logo-auth {
+            display: block; 
+            margin: auto; 
+            max-width: 100%; 
+            max-height: 100%;
+        }
+
+    </style>
+</head>
+<body>
+    <br/>
+
+    
+    <div class="sidebar">
+        <img src="f1.png" alt="Logo" class="logo-auth" />
+    </div>
+    <div class="container">
+        <h2>Sign In / Register</h2>
+        <form id="loginRegisterForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" placeholder="Enter password">
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-block" id="signInBtn">Sign In</button>
+                </div>
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-block" id="registerBtn">Register</button>
+                </div>
+            </div>
+        </form>
+    </div>
+   
+    <script type="module">
+
+
+
+
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+// FireBase Authenticaion
+        const firebaseConfig = {
+            apiKey: "AIzaSyCntJyp2Q8PfKklUOVQWDZQ6UmbV3UNDE8",
+            authDomain: "flexvault-f438a.firebaseapp.com",
+            projectId: "flexvault-f438a",
+            storageBucket: "flexvault-f438a.appspot.com",
+            messagingSenderId: "38963046556",
+            appId: "1:38963046556:web:254cd9c8feeb0b11a9a559"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        console.log(app);
+
+        document.getElementById("signInBtn").addEventListener("click", function(event) {
+            event.preventDefault(); 
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log(user);
+                alert("Login successful!");
+                window.location.href = "flexvault.html?email=" + encodeURIComponent(email);
+            })
+            .catch((error) => {
+                const errorMessage = error.message;
+                console.error(errorMessage);
+                alert("Login failed. Please try again.");
+            });
+        });
+
+        document.getElementById("registerBtn").addEventListener("click", function(event) {
+            event.preventDefault(); 
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log(user);
+                alert("Registration successful!");
+                signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    console.log("Signed in automatically after registration:", userCredential.user);
+                    alert("You are now signed in!");
+                    window.location.href = "flexvault.html?email=" + encodeURIComponent(email);
+                })
+                .catch((error) => {
+                    const errorMessage = error.message;
+                    console.error(errorMessage);
+                    alert("Automatic sign-in failed. Please sign in manually.");
+                });
+            })
+            .catch((error) => {
+                const errorMessage = error.message;
+                console.error(errorMessage);
+                alert("Registration failed. Please try again.");
+            });
+        });
+    </script>
+</body>
+</html>
